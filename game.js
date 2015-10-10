@@ -39,17 +39,17 @@ Class.create("save", {
             this.saveName = sn;
         }
     },
-    dumpX: function() {
-        
+    dump: function() {
+        Marshal.dump(this.element, this.saveName);
     },
-    dumpY: function() {
-        
+    load: function() {
+        return Marshal.load(this.saveName);
     },
     /*
     setX: function() {
         Marshal.dump(this.element.x, this.saveName);
     },
-    setY: functionf() {
+    setY: function() {
         Marshal.dump(this.element.y, this.saveName);
     },
     getX: function() {
@@ -81,7 +81,7 @@ canvas.Scene.New({
     ready: function(stage) {
         console.log("ready");
         this.elem = this.createElement();
-        this.elemsave = Class.new("save", [this.elem])
+        this.elemsave = Class.new("save", [this.elem]);
         this.elem.drawImage('img_id');
         stage.append(this.elem);
         canvas.Input.keyDown(Input.Bottom);
@@ -94,7 +94,6 @@ canvas.Scene.New({
         canvas.Input.keyUp(Input.Right);
     },
     render: function(stage) {
-        this.elemsave.getX();
         if(canvas.Input.isPressed(Input.Left)) {
             left(this.elem, this.speed);
         };
@@ -107,7 +106,6 @@ canvas.Scene.New({
         if(canvas.Input.isPressed(Input.Bottom)) {
             down(this.elem, this.speed);
         };
-        this.elemsave.setX(1);
         stage.refresh();
     },
     exit: function(stage) {
