@@ -25,7 +25,7 @@ function left(element, n) {
 function right(element, n) {
     element.x += n;
 };
-Class.create("save", {
+/*Class.create("save", {
     name: "ElementSave",
     element: "",
     saveName: "pixelventure_save",
@@ -45,7 +45,7 @@ Class.create("save", {
     load: function() {
         return Marshal.load(this.saveName);
     },
-    /*
+    
     setX: function() {
         Marshal.dump(this.element.x, this.saveName);
     },
@@ -57,15 +57,34 @@ Class.create("save", {
     },
     getY: function() {
         return Marshal.load(this.saveName);
-    },*/
+    },
     getElement: function() {
         return this.element;
     }
+});*/
+Class.create("ElementSave", {
+    name: "ElementSave",
+    element: "",
+    initialize: function(element) {
+        this.element = element;
+    },
+    x: function() {
+        return this.element.x;
+    },
+    y: function() {
+        return this.element.y;
+    }
+});
+Class.create("Coords", {
+    cx: 0,
+    cy: 0
 });
 canvas.Scene.New({
     speed: 2,
     elem: "",
     elemsave: "",
+    elemload: Marshal.load("pixel_coords"),
+    cdl_1: true,
     name: "MyScene", // Obligatory
     materials: {
         images: {
@@ -74,14 +93,22 @@ canvas.Scene.New({
     },
     called: function(stage) {
         console.log("called");
+        this.cdl_1 = true;
     },
     preload: function(stage, pourcent, material) {
         console.log("preload");
+        console.log(this.elemload.cx);
+        console.log(this.elemload.cy);
     },
     ready: function(stage) {
         console.log("ready");
         this.elem = this.createElement();
-        this.elemsave = Class.new("save", [this.elem]);
+        if(this.cdl_1) {
+            this.elem.x = this.elemload.cx;
+            this.elem.y = this.elemload.cy;
+            this.cdl_1 = false;
+        }
+        this.elemsave = Class.new("Coords");
         this.elem.drawImage('img_id');
         stage.append(this.elem);
         canvas.Input.keyDown(Input.Bottom);
@@ -109,10 +136,13 @@ canvas.Scene.New({
         stage.refresh();
     },
     exit: function(stage) {
-        alert("EXITING");
+        this.elemsave.cx = this.elem.x;
+        this.elemsave.cy = this.elem.y;
+        Marshal.dump(this.elemsave, "pixel_coords");
     }
 });
 window.onbeforeunload = function() {
+    canvas.Scene.exitAll();
     console.log("Almost Bye Bye.");
 };
 window.onunload = function() {
