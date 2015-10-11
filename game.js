@@ -5,8 +5,20 @@
  * Time: 08:23 PM
  * To change this template use Tools | Templates.
  */
-var canvas = CE.defines('canvas_id').extend(Input).ready(function() {
+var canvas = CE.defines('canvas_id').extend(Animation).extend(Input).extend(Effect).ready(function() {
     //Ready
+    canvas.Materials.load("images", [{
+        warrior1: "img/warrior1.png"
+    }, {
+        warrior1_big: "img/warrior1-100.gif"
+    }], function(img) {
+        console.log("Image is loaded");
+    }, function() {
+        console.log("All images are loaded");
+    });
+    
+    var player;
+    
     canvas.Scene.call("MyScene");
 });
 
@@ -81,14 +93,20 @@ Class.create("Coords", {
 });
 canvas.Scene.New({
     speed: 2,
+    events: ["load"], 
     elem: "",
     elemsave: "",
     elemload: Marshal.load("pixel_coords"),
     cdl_1: true,
+    timeline: "",
+    animationup: "",
+    animationdown: "",
+    animationleft: "",
+    animationright: "",
     name: "MyScene", // Obligatory
     materials: {
         images: {
-            img_id: "img/warrior1.png"
+            warrior1old: "img/warrior1.png"
         }
     },
     called: function(stage) {
@@ -102,15 +120,15 @@ canvas.Scene.New({
     },
     ready: function(stage) {
         console.log("ready");
-        this.elem = this.createElement();
+        player = this.createElement();
         if(this.cdl_1) {
-            this.elem.x = this.elemload.cx;
-            this.elem.y = this.elemload.cy;
+            player.x = this.elemload.cx;
+            player.y = this.elemload.cy;
             this.cdl_1 = false;
         }
+        player.drawImage("warrior1");
         this.elemsave = Class.new("Coords");
-        this.elem.drawImage('img_id');
-        stage.append(this.elem);
+        stage.append(player);
         canvas.Input.keyDown(Input.Bottom);
         canvas.Input.keyDown(Input.Up);
         canvas.Input.keyDown(Input.Left);
@@ -122,24 +140,27 @@ canvas.Scene.New({
     },
     render: function(stage) {
         if(canvas.Input.isPressed(Input.Left)) {
-            left(this.elem, this.speed);
+            left(player, this.speed);
         };
         if(canvas.Input.isPressed(Input.Right)) {
-            right(this.elem, this.speed);
+            right(player, this.speed);
         };
         if(canvas.Input.isPressed(Input.Up)) {
-            up(this.elem, this.speed);
+            up(player, this.speed);
         };
         if(canvas.Input.isPressed(Input.Bottom)) {
-            down(this.elem, this.speed);
+            down(player, this.speed);
         };
         stage.refresh();
     },
     exit: function(stage) {
-        this.elemsave.cx = this.elem.x;
-        this.elemsave.cy = this.elem.y;
+        this.elemsave.cx = player.x;
+        this.elemsave.cy = player.y;
         Marshal.dump(this.elemsave, "pixel_coords");
-    }
+    },
+    load: function(text) {
+         console.log(text);
+      }
 });
 window.onbeforeunload = function() {
     canvas.Scene.exitAll();
