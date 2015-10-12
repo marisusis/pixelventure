@@ -5,20 +5,9 @@
  * Time: 08:23 PM
  * To change this template use Tools | Templates.
  */
-var canvas = CE.defines('canvas_id').extend(Animation).extend(Input).extend(Effect).ready(function() {
-    //Ready
-    canvas.Materials.load("images", [{
-        warrior1: "img/warrior1.png"
-    }, {
-        warrior1_big: "img/warrior1-100.gif"
-    }], function(img) {
-        console.log("Image is loaded");
-    }, function() {
-        console.log("All images are loaded");
-    });
-    
-    var player;
-    
+var canvas = CE.defines('canvas_id').extend(Animation).extend(Spritesheet).extend(Input).extend(Effect).extend(Window).ready(function() {
+    //Ready   
+    var player = "";
     canvas.Scene.call("MyScene");
 });
 
@@ -93,12 +82,11 @@ Class.create("Coords", {
 });
 canvas.Scene.New({
     speed: 2,
-    events: ["load"], 
-    elem: "",
     elemsave: "",
     elemload: Marshal.load("pixel_coords"),
     cdl_1: true,
     timeline: "",
+    inCanvas: true,
     animationup: "",
     animationdown: "",
     animationleft: "",
@@ -106,7 +94,9 @@ canvas.Scene.New({
     name: "MyScene", // Obligatory
     materials: {
         images: {
-            warrior1old: "img/warrior1.png"
+            warrior1: "img/warrior1.png",
+            bricks: "img/bricks.png",
+            clover: "img/clover.png"
         }
     },
     called: function(stage) {
@@ -120,15 +110,15 @@ canvas.Scene.New({
     },
     ready: function(stage) {
         console.log("ready");
-        player = this.createElement();
+        this.player = this.createElement();
         if(this.cdl_1) {
-            player.x = this.elemload.cx;
-            player.y = this.elemload.cy;
+            this.player.x = this.elemload.cx;
+            this.player.y = this.elemload.cy;
             this.cdl_1 = false;
         }
-        player.drawImage("warrior1");
+        this.player.drawImage("warrior1");
         this.elemsave = Class.new("Coords");
-        stage.append(player);
+        stage.append(this.player);
         canvas.Input.keyDown(Input.Bottom);
         canvas.Input.keyDown(Input.Up);
         canvas.Input.keyDown(Input.Left);
@@ -139,28 +129,33 @@ canvas.Scene.New({
         canvas.Input.keyUp(Input.Right);
     },
     render: function(stage) {
+        var xye = document.getElementsByClassName("xy_id");
+        xye[0].innerHTML = "X: " + this.player.x;
+        xye[1].innerHTML = "Y: " + this.player.y;
         if(canvas.Input.isPressed(Input.Left)) {
-            left(player, this.speed);
+            left(this.player, this.speed);
         };
         if(canvas.Input.isPressed(Input.Right)) {
-            right(player, this.speed);
+            right(this.player, this.speed);
         };
         if(canvas.Input.isPressed(Input.Up)) {
-            up(player, this.speed);
+            up(this.player, this.speed);
         };
         if(canvas.Input.isPressed(Input.Bottom)) {
-            down(player, this.speed);
+            down(this.player, this.speed);
         };
         stage.refresh();
     },
     exit: function(stage) {
-        this.elemsave.cx = player.x;
-        this.elemsave.cy = player.y;
+        if(this.player.y <= 415 && this.player.y <= 600) {
+            this.elemsave.cx = this.player.x;
+            this.elemsave.cy = this.player.y;
+        } else {
+            this.elemsave.cx = 0;
+            this.elemsave.cy = 0;
+        }
         Marshal.dump(this.elemsave, "pixel_coords");
-    },
-    load: function(text) {
-         console.log(text);
-      }
+    }
 });
 window.onbeforeunload = function() {
     canvas.Scene.exitAll();
